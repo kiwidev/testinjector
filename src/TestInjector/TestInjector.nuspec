@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>TestInjector</id>
+    <version>0.1.0</version>
+    <title>Test Injector</title>
+    <authors>Datacom Systems Ltd, Mark Young</authors>
+    <owners>Mark Young</owners>
+    <licenseUrl>https://github.com/kiwidev/TestInjector/License.md</licenseUrl>
+    <projectUrl>https://github.com/kiwidev/TestInjector</projectUrl>
+    <!--<iconUrl></iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A small framework for allowing unit tests to be injected into running WPF applications, allowing for simpler UI unit testing.</description>
+    <releaseNotes>Initial release</releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <tags>WPF UI UI-Tests Unit-Testing</tags>
+  </metadata>
+</package>
