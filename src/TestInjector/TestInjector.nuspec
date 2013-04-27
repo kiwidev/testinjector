@@ -6,7 +6,7 @@
     <title>Test Injector</title>
     <authors>Datacom Systems Ltd, Mark Young</authors>
     <owners>Mark Young</owners>
-    <licenseUrl>https://github.com/kiwidev/TestInjector/License.md</licenseUrl>
+    <licenseUrl>https://github.com/kiwidev/testinjector/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/kiwidev/TestInjector</projectUrl>
     <!--<iconUrl></iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
