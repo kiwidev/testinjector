@@ -12,7 +12,7 @@ This means that instead of having to do all work via UI Automation, unit tests o
  - Ensure your unit tests are running using the same architecture (x86/x64) as your application
  - Reference your target application from your unit tests (this can be the same project as conventional unit tests).
 
-## Using it
+### Using it
 
         [TestMethod]
         public void TestThatSomethingInsideMyApplicationWorks()
@@ -37,3 +37,13 @@ This means that instead of having to do all work via UI Automation, unit tests o
                     });
             }
         }
+
+## About
+![Datacom](https://raw.github.com/wiki/kiwidev/testinjector/images/datacom.jpg)
+
+This project is supported by [Datacom](http://www.datacom.co.nz)
+
+### License
+Licensed under MS-PL, please see [License.md](License.md) for details.
+
+
