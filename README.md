@@ -44,6 +44,6 @@ This means that instead of having to do all work via UI Automation, unit tests o
 This project is supported by [Datacom](http://www.datacom.co.nz)
 
 ### License
-Licensed under MS-PL, please see [License.md](License.md) for details.
+Licensed under MS-PL, please see [License.md](LICENSE.md) for details.
 
 
