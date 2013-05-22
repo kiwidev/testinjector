@@ -39,10 +39,13 @@ namespace TestInjector
         /// </summary>
         /// <param name="location">Relative based on the current executing process. Be aware that different test runners can
         /// change this location</param>
-        /// <param name="numberOfLevelsHigherToTry">Attempts to find file by trying this number of higher directories (adding ..\ to 
-        /// the beginning of the application location). 0 to ignore. Only applies to relative paths</param>
-        public void Launch(string location, int numberOfLevelsHigherToTry = 1)
+        /// <param name="applicationLaunchSettings">Settings referring to the launch. 
+        /// Defaults to <see cref="ApplicationLaunchSettings.Default"/></param>
+        /// <returns>File location of the actual exe launched</returns>
+        public string Launch(string location, ApplicationLaunchSettings applicationLaunchSettings = null)
         {
+            applicationLaunchSettings = applicationLaunchSettings ?? ApplicationLaunchSettings.Default;
+
             if (_process != null)
             {
                 throw new InvalidOperationException("Process is already attached. Please detach before trying to launch.");
@@ -63,7 +66,9 @@ namespace TestInjector
                 fileLocation = Path.Combine(currentDirectory, location);
                 searchPaths.AppendLine(fileLocation);
 
-                while (!File.Exists(fileLocation) && numberOfLevelsHigherToTry-- > 0)
+                int numberOfDirectoriesToSearch = applicationLaunchSettings.NumberOfParentDirectoriesToSearchForExe;
+
+                while (!File.Exists(fileLocation) && numberOfDirectoriesToSearch-- > 0)
                 {
                     fileLocation = Path.Combine(currentDirectory, "..\\" + location);
                     searchPaths.AppendLine(fileLocation);
@@ -80,11 +85,22 @@ namespace TestInjector
                                                 searchPaths.ToString());
             }
 
+            StartProcess(fileLocation, applicationLaunchSettings);
+            return fileLocation;
+        }
+
+        protected virtual void StartProcess(string fileLocation, ApplicationLaunchSettings applicationLaunchSettings)
+        {
             try
             {
                 Process process = Process.Start(fileLocation);
+                if (process == null)
+                    throw new ApplicationException("Process.Start returned null");
+
                 _process = process;
                 KillProcessOnDispose = true;
+                
+                Thread.Sleep(applicationLaunchSettings.MinimumTimeToWaitForApplicationToLaunch);
 
                 _process.WaitForInputIdle(10000);
                 int count = 500;
@@ -92,6 +108,8 @@ namespace TestInjector
                 {
                     Thread.Sleep(10);
                 }
+
+                // TODO: Throw timeout exception
             }
             catch (Exception ex)
             {
@@ -130,7 +148,19 @@ namespace TestInjector
             get { return _process; }
         }
 
+       
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~ApplicationInstance()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             if (_process != null && KillProcessOnDispose)
             {

@@ -10,6 +10,10 @@ using System.Windows;
 using System.Windows.Threading;
 using System.Diagnostics;
 
+#if !NET40
+using TaskEx = System.Threading.Tasks.Task;
+#endif
+
 namespace TestInjector.Client
 {
     public static class TestHelper
@@ -53,7 +57,7 @@ namespace TestInjector.Client
 
         public static Task WaitForIdleAsync(bool justIdle = false)
         {
-            return Task.Run(() =>
+            return TaskEx.Run(() =>
             {
                 if (!justIdle)
                 {
@@ -98,7 +102,7 @@ namespace TestInjector.Client
                 res = func();
 
                 if (!res)
-                    await Task.Delay(20);
+                    await TaskEx.Delay(20);
             }
         }
     }

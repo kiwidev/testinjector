@@ -12,7 +12,7 @@ namespace TestInjector.Client
 {
     public static class WpfInjectedEndpoint
     {
-        public static void RemoteInjectionPoint(string param)
+        public static void RemoteInjectionPoint()
         {
             StartClientTests();
         }

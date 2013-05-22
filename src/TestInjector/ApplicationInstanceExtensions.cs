@@ -18,7 +18,12 @@ namespace TestInjector
                                Action staticMethodToExecute, 
             TestInjectorSettings testInjectorSettings = null)
         {
-            var methodInfo = staticMethodToExecute.GetMethodInfo();
+            var methodInfo = 
+#if NET40
+                staticMethodToExecute.Method;
+#else
+                staticMethodToExecute.GetMethodInfo();
+#endif
             if (!methodInfo.IsStatic)
                 throw new InvalidOperationException("Method must be static - don't reference any outside parameters");
 
@@ -30,7 +35,13 @@ namespace TestInjector
                                Func<Task> staticMethodToExecute,
             TestInjectorSettings testInjectorSettings = null)
         {
-            var methodInfo = staticMethodToExecute.GetMethodInfo();
+            var methodInfo =
+#if NET40
+ staticMethodToExecute.Method;
+#else
+                staticMethodToExecute.GetMethodInfo();
+#endif
+
             if (!methodInfo.IsStatic)
                 throw new InvalidOperationException("Method must be static - don't reference any outside parameters");
 

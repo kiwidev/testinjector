@@ -5,7 +5,7 @@ namespace TestInjector.Service
 {
     public static class ServiceController
     {
-        public const string ServiceAddress = "net.pipe://localhost/GoSnoopy/CallbackEndpoint";
+        public const string ServiceAddress = "net.pipe://localhost/TestInjector/CallbackEndpoint";
 
         public delegate void TestCallbackHandler(string testName, TestStatus status, ExceptionDetails exceptionDetails, string traceLog);
 
@@ -80,7 +80,12 @@ namespace TestInjector.Service
 
         public static TestDetails GetCurrentTestDetails()
         {
+            if (OnTestDetailsRetrieved != null)
+                OnTestDetailsRetrieved();
+
             return _testDetails;
         }
+
+        public static Action OnTestDetailsRetrieved { get; set; }
     }
 }

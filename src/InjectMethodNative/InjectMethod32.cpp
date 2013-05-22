@@ -31,6 +31,8 @@ extern "C" __declspec(dllexport)  LPCSTR __stdcall InjectCode(HWND windowHandle,
 
 	if (::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)&GlobalMessageHook, &hInstDll))
 	{
+		logBuilder->AppendFormat("Got global hook handle\r\n");
+
 		DWORD processId = 0;
 		DWORD threadId = ::GetWindowThreadProcessId(windowHandle, &processId);
 
@@ -73,7 +75,16 @@ extern "C" __declspec(dllexport)  LPCSTR __stdcall InjectCode(HWND windowHandle,
 				::CloseHandle(hProcess);
 			}
 		}
+		else
+		{
+			logBuilder->AppendFormat("Failed to get WindowProcessId: {0}\r\n", ::GetLastError());
+		}
+
 		::FreeLibrary(hInstDll);
+	}
+	else
+	{
+		logBuilder->AppendFormat("Error getting global hook method: {0}\r\n", ::GetLastError());
 	}
 
 	return (LPCSTR) Marshal::StringToHGlobalAnsi(logBuilder->ToString()).ToPointer();

@@ -16,5 +16,11 @@ namespace TestInjector.Injection
         {
             
         }
+
+        public InjectionException(string message, Exception innerException)
+            :base(message, innerException)
+        {
+                
+        }
     }
 }

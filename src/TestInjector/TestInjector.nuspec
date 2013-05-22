@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>TestInjector</id>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <title>Test Injector</title>
     <authors>Datacom Systems Ltd, Mark Young</authors>
     <owners>Mark Young</owners>
@@ -14,5 +14,14 @@
     <releaseNotes>Initial release</releaseNotes>
     <copyright>Copyright 2013</copyright>
     <tags>WPF UI UI-Tests Unit-Testing</tags>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="Microsoft.Bcl.Async" />
+      </group>
+    </dependencies>
   </metadata>
+  <files>
+    <file src="bin\Release\TestInjector.dll" target="lib\net45" />
+    <file src="bin\Release40\TestInjector.dll" target="lib\net40" />
+  </files>
 </package>

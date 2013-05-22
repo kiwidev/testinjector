@@ -24,6 +24,8 @@ namespace TestInjector.Client
             string traceLog = null;
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
+            AutoResetEvent testDetailsRetrievedResetEvent = new AutoResetEvent(false);
+
 
 
             var assembliesToLoad = AppDomain.CurrentDomain.GetAssemblies()
@@ -62,6 +64,17 @@ namespace TestInjector.Client
                 TypeName = type.FullName
             };
 
+            bool testDetailsRetrieved = false;
+            ServiceController.OnTestDetailsRetrieved = () =>
+                {
+                    testDetailsRetrieved = true;
+                    ThreadPool.QueueUserWorkItem(state =>
+                        {
+                            Thread.Sleep(10);
+                            testDetailsRetrievedResetEvent.Set();
+                        });
+                };
+
             using (var serviceHost = ServiceController
                 .StartService(testDetails, ((name, status, localExceptionDetails, localTraceLog) =>
                                                 {
@@ -74,6 +87,7 @@ namespace TestInjector.Client
             {
                 try
                 {
+                    process.Refresh();
                     InjectorMethods.InjectMethod(process.MainWindowHandle,
                                                  typeof (WpfInjectedEndpoint),
                                                  "RemoteInjectionPoint",
@@ -84,7 +98,17 @@ namespace TestInjector.Client
                     throw new TestInjectorClientException("Failed to inject process", ex);
                 }
 
+                // Timeout out waiting for method to be injected
+                if (!testDetailsRetrieved)
+                {
+                    testDetailsRetrievedResetEvent.WaitOne(TimeSpan.FromSeconds(10));
+                }
+                if (!testDetailsRetrieved)
+                {
+                    throw new TestInjectorClientException("Timed out waiting for client injection");
+                }
 
+                // TODO: Need a timeout / heartbeat here
                 while (serviceStatus == null || serviceStatus.Value == TestStatus.Started)
                 {
                     resetEvent.WaitOne(TimeSpan.FromSeconds(10));

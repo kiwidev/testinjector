@@ -13,6 +13,11 @@ using System.Threading.Tasks;
 using TestInjector.Common;
 using TestInjector.Service;
 
+#if !NET40
+using TaskEx = System.Threading.Tasks.Task;
+#endif
+
+
 namespace TestInjector.Client
 {
     public class TestRunner
@@ -80,7 +85,7 @@ namespace TestInjector.Client
 
         private async Task ReportTestProgressAsync(TestStatus status, ExceptionDetails exceptionDetails = null)
         {
-            await Task.Run(() =>
+            await TaskEx.Run(() =>
                                  {
                                      using (var client = TestCallbackClient.Create())
                                      {
@@ -95,7 +100,7 @@ namespace TestInjector.Client
         private async Task<TestDetails> GetTestDetailsAsync()
         {
             // Debugger.Launch();
-            return await Task.Run(
+            return await TaskEx.Run(
                 () =>
                 {
                     using (var client = TestCallbackClient.Create())
@@ -108,13 +113,13 @@ namespace TestInjector.Client
 
         private Task<ResolveEventHandler> LoadAssembliesAsync(TestDetails details, List<Assembly> newAssemblies)
         {
-            return Task.Run(
+            return TaskEx.Run(
                 () =>
                 {
                     string thisAssembly = GetType().Assembly.FullName;
                     string thisAssemblyLocation = GetType().Assembly.Location;
                     ResolveEventHandler resolveAction = (o, eventArgs) =>
-                    {
+                        {
                         // If the assembly name matches, then use the dll....
 
                         if (eventArgs.Name == thisAssembly)
@@ -173,7 +178,7 @@ namespace TestInjector.Client
 
         private async Task<MethodInfo> FindMethodToRunAsync(TestDetails details, List<Assembly> newAssemblies)
         {
-            return await Task.Run(() =>
+            return await TaskEx.Run(() =>
             {
                 Type methodType = null;
                 foreach (var assembly in newAssemblies)

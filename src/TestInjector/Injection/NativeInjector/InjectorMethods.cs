@@ -3,11 +3,13 @@
 // Please see http://go.microsoft.com/fwlink/?LinkID=131993 for details.
 // All other rights reserved.
 
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using TestInjector.Properties;
 
 namespace TestInjector.Injection.NativeInjector
 {
@@ -37,9 +39,12 @@ namespace TestInjector.Injection.NativeInjector
                 methodName,
                 parameter);
 
+            Debug.WriteLine("Injection result: " + resultLog);
             if (resultLog == null || !resultLog.StartsWith("Success"))
             {
-                throw new InjectionException("Injection failed. Are you running on the same architecture (x86, x64) as the target? \r\n\r\nLog:\r\n" + resultLog);
+                throw new InjectionException(
+                    string.Format(Resources.ERROR_InjectionFailed, resultLog)
+                    );
             }
 
             return resultLog;
@@ -55,17 +60,37 @@ namespace TestInjector.Injection.NativeInjector
             string executingFolder = Path.GetDirectoryName(typeof(InjectorMethods).Assembly.Location);
             if (executingFolder == null)
             {
-                throw new InjectionException("Couldn't get current path name");
+                throw new InjectionException(Resources.ERROR_CannotGetPath);
             }
 
             string destinationFilePath = Path.Combine(executingFolder, fileName);
+
+            if (File.Exists(destinationFilePath))
+            {
+                if (IsEmbeddedFileOlderThanCurrentDll(destinationFilePath))
+                {
+                    try
+                    {
+                        File.Delete(destinationFilePath);
+                    }
+                    catch (IOException ex)
+                    {
+                        throw new InjectionException(Resources.ERROR_DeleteManagedInjectorDll, ex);
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        throw new InjectionException(Resources.ERROR_DeleteManagedInjectorDll, ex);
+                    }
+                }
+            }
+
             if (!File.Exists(destinationFilePath))
             {
                 var embeddedStream = typeof (InjectorMethods).Assembly
                     .GetManifestResourceStream(sourceFileName);
                 if (embeddedStream == null)
                 {
-                    throw new InjectionException("Could not find embedded file");
+                    throw new InjectionException(Resources.ERROR_CannotFindEmbeddedFile);
                 }
 
                 using (embeddedStream)
@@ -76,6 +101,20 @@ namespace TestInjector.Injection.NativeInjector
                     }
                 }
             }
+        }
+
+        private static bool _checkedForOlder = false;
+
+        private static bool IsEmbeddedFileOlderThanCurrentDll(string destinationFilePath)
+        {
+            if (_checkedForOlder)
+                return false;
+            
+            _checkedForOlder = true;
+            var destinationCreateTime = File.GetLastWriteTimeUtc(destinationFilePath);
+            var currentCreateTime = File.GetLastWriteTimeUtc(typeof (InjectorMethods).Assembly.Location);
+
+            return destinationCreateTime < currentCreateTime;
         }
 
         internal static class InjectMethodNativeFunctions
